@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <script type="text/javascript">
+      var my_target, my_component_array;
+
+      function draw_canvas() {
+        my_target.begin_draw();
+
+        my_target.do_draw(my_component_array);
+
+        my_target.end_draw();
+        window.requestAnimationFrame(draw_canvas);
+      }
+
+      async function init_draw() {
+        var my_webgpu, my_render, my_part;
+
+        my_component_array = new Array();
+        my_webgpu = await (
+          await import("./webgpu.js")
+        ).create_webgpu("my_canvas");
+        my_target = await (
+          await import("./target.js")
+        ).create_target(my_webgpu);
+
+        my_render = await (
+          await import("./render.js")
+        ).create_render(my_webgpu, {
+          shader_url: "./shader.wgsl",
+        });
+        my_part = await my_render.create_part({});
+
+        my_component_array.push(
+          await my_part.create_component({
+            width: 1000,
+            height: 1000,
+
+            wave_number: 5,
+            time_cycle: 1000,
+            wave_amplitude: 0.01,
+
+            texture_url: "./snake.jpg",
+          })
+        );
+
+        draw_canvas();
+      }
+    </script>
+  </head>
+
+  <body onload="init_draw();">
+    <canvas id="my_canvas" width="750" height="750"></canvas>
+  </body>
+</html>
